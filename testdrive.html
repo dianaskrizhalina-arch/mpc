@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Поиск по ФИ</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 1.5em; /* увеличенный масштаб */
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 4em; /* увеличенный заголовок */
+            margin-top: 50px;
+            margin-bottom: 100px;
+        }
+
+        .logo {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            width: 250px; /* чуть меньше фоток */
+            height: auto;
+            z-index: 1000;
+        }
+
+        .search-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+
+        input[type="text"] {
+            width: 500px;
+            height: 60px;
+            font-size: 1.8em;
+            padding: 5px 15px;
+        }
+
+        button {
+            height: 60px;
+            font-size: 1.8em;
+            padding: 0 25px;
+            cursor: pointer;
+        }
+
+        #result {
+            width: 90%;
+            margin: 0 auto;
+        }
+
+        .person {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 50px;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 40px;
+        }
+
+        .person-text {
+            text-align: left;
+            max-width: 65%;
+        }
+
+        .person-text p {
+            margin: 8px 0;
+        }
+
+        .criteria {
+            color: blue;
+            font-weight: bold;
+        }
+
+        .value {
+            color: black;
+        }
+
+        .person img {
+            max-width: 300px; /* увеличенное изображение */
+            max-height: 300px;
+            margin-left: 30px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <img src="https://i.postimg.cc/NGWWWqfW/temp-Image-K7-AQuj.avif" alt="Логотип" class="logo">
+    <h1>Поиск по ФИ</h1>
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Введите Фамилию и Имя">
+        <button onclick="searchPerson()">Поиск</button>
+    </div>
+    <div id="result"></div>
+
+    <script>
+        const people = [
+            {surname:"Скрижалина",name:"Диана",patronymic:"Ильдаровна",birthDate:"17.11.2006",birthCity:"Марсель, Франция",education:"ГИТР, ранее МГТУ им. Баумана",phone:"89255158436",height:"178.3 см",eyeColor:"Зеленый",photo:"https://i.postimg.cc/vTKygcWh/temp-Image-GCP5q-N.avif"},
+            {surname:"Политай",name:"Никита",patronymic:"Игоревич",birthDate:"17.11.2006",birthCity:"Тюмень, Россия",education:"РТУ МИРЭА",phone:"89825127741",height:"192 см",eyeColor:"Серо-голубой",photo:"https://i.postimg.cc/76mw4Bhp/temp-Image-M5-Si-J7.avif"},
+            {surname:"Альшевский",name:"Василий",patronymic:"Михайлович",birthDate:"29.03.2006",birthCity:"Сургут, Россия",education:"РГАУ-МСХА им. К. А. Тимирязева и МФЮА",phone:"89227608855",height:"174 см",eyeColor:"Карие",photo:"https://i.postimg.cc/ZR7t2CDm/temp-Imageuklxrn.avif"},
+            {surname:"Полторак",name:"Савелий",patronymic:"Вячеславович",birthDate:"09.05.2006",birthCity:"Сургут, Россия",education:"СПБГАСУ",phone:"8-982-502-98-79",height:"180 см",eyeColor:"Карие",photo:"https://i.postimg.cc/J49mRH74/temp-Image-DU6-Z2-G.avif"},
+            {surname:"Максименко",name:"Никита",patronymic:"Андреевич",birthDate:"25.01.2007",birthCity:"Сургут, Россия",education:"ТюмГУ",phone:"89090401316",height:"180 см",eyeColor:"Каре-зеленые",photo:"https://i.postimg.cc/wv6gSKqX/temp-Image-Qx-VRHu.avif"},
+            {surname:"Еременко",name:"Артём",patronymic:"Юрьевич",birthDate:"26.07.2006",birthCity:"Сургут, Россия",education:"УИ ГА",phone:"89821375690",height:"180 см",eyeColor:"Карий",photo:"https://i.postimg.cc/900VQGqz/temp-Imagebcqo-OO.avif"},
+            {surname:"Кузнецов",name:"Кирилл",patronymic:"Андреевич",birthDate:"18.06.2006",birthCity:"Когалым, Россия",education:"СПБПУ",phone:"89527098324",height:"178 см",eyeColor:"Зеленые",photo:"https://i.postimg.cc/66bt11DZ/temp-Image-Ud-Y2-Qv.avif"},
+            {surname:"Сергеева",name:"Арина",patronymic:"Дмитриевна",birthDate:"14.03.2007",birthCity:"Москва, Россия",education:"Губка",phone:"89853174505",height:"165 см",eyeColor:"Карие (азиатка)",photo:"https://i.postimg.cc/Bbj904dK/temp-Image2-O0-Y4-I.avif"},
+            {surname:"Горяк",name:"Камилла",patronymic:"Ярославовна",birthDate:"14.02.2007",birthCity:"Сургут, Россия",education:"БФУ",phone:"+7 (912) 512-52-82",height:"165-168 см",eyeColor:"Голубой",photo:"https://i.postimg.cc/QMqrg6QH/temp-Image-UUbc70.avif"},
+            {surname:"Щиголева",name:"Вита",patronymic:"Алексеевна",birthDate:"23.06.2006",birthCity:"Москва, Россия",education:"Музыкальное училище имени Гнесиных",phone:"+79687694350",height:"179 см",eyeColor:"Зелено-голубой",photo:"https://i.postimg.cc/cLwWC167/temp-Imageud-HFPZ.avif"},
+            {surname:"Широкоряд",name:"Андрей",patronymic:"Кириллович",birthDate:"27.11.2006",birthCity:"Челябинск, Россия",education:"Сургутский политехнический колледж",phone:"+79527054811",height:"188 см",eyeColor:"Зеленые",photo:"https://i.postimg.cc/Bv30KW1r/temp-Imagerrxsib.avif"},
+            {surname:"Багряный",name:"Лев",patronymic:"Николаевич",birthDate:"17.09.1976",birthCity:"Москва, Россия",education:"МГЮА",phone:"79017992067",height:"187 см",eyeColor:"Серые",photo:"https://i.postimg.cc/nzGdXgth/temp-Imagewwsb-Ja.avif"},
+            {surname:"Фабриков",name:"Иван",patronymic:"Александрович",birthDate:"06.04.2006",deathDate:"19.07.2026",birthCity:"Сургут, Россия",education:"СПбГАСУ",phone:"89227757155",height:"196 см",eyeColor:"Карие",photo:"https://i.postimg.cc/657tsfXm/temp-Imagea-CVu-U8.avif"},
+            {surname:"Бусленко",name:"Надежда",patronymic:"Александровна",birthDate:"09.08.2007",birthCity:"Сургут, Россия",education:"РАНХиГС",phone:"+7 904 470 7597",height:"158 см",eyeColor:"Каре-зеленые",photo:"https://i.postimg.cc/85PgZh4w/temp-Imagegqa5d-I.avif"}
+        ];
+
+        function searchPerson() {
+            const input = document.getElementById("searchInput").value.toLowerCase().trim();
+            const resultDiv = document.getElementById("result");
+            resultDiv.innerHTML = "";
+
+            if (input === "") {
+                resultDiv.innerHTML = "<p>Введите Фамилию и Имя.</p>";
+                return;
+            }
+
+            const inputParts = input.split(/\s+/);
+
+            const matches = people.filter(p => {
+                const nameParts = [p.surname.toLowerCase(), p.name.toLowerCase()];
+                return inputParts.every(part => nameParts.includes(part));
+            });
+
+            if (matches.length > 0) {
+                matches.forEach(person => {
+                    resultDiv.innerHTML += `
+                        <div class="person">
+                            <div class="person-text">
+                                <h2>${person.surname} ${person.name} ${person.patronymic || ""}</h2>
+                                <p><span class="criteria">Фамилия:</span> <span class="value">${person.surname}</span></p>
+                                <p><span class="criteria">Имя:</span> <span class="value">${person.name}</span></p>
+                                <p><span class="criteria">Отчество:</span> <span class="value">${person.patronymic || "-"}</span></p>
+                                <p><span class="criteria">Дата рождения:</span> <span class="value">${person.birthDate || "-"}</span></p>
+                                ${person.deathDate ? `<p><span class="criteria">Дата смерти:</span> <span class="value">${person.deathDate}</span></p>` : ""}
+                                <p><span class="criteria">Город рождения:</span> <span class="value">${person.birthCity || "-"}</span></p>
+                                <p><span class="criteria">Образование:</span> <span class="value">${person.education || "-"}</span></p>
+                                <p><span class="criteria">Номер телефона:</span> <span class="value">${person.phone || "-"}</span></p>
+                                <p><span class="criteria">Рост:</span> <span class="value">${person.height || "-"}</span></p>
+                                <p><span class="criteria">Цвет глаз:</span> <span class="value">${person.eyeColor || "-"}</span></p>
+                            </div>
+                            <img src="${person.photo}" alt="${person.name}">
+                        </div>
+                    `;
+                });
+            } else {
+                resultDiv.innerHTML = "<p>Человек не найден.</p>";
+            }
+        }
+    </script>
+</body>
+</html>
+
